@@ -1,103 +1,92 @@
-const numInput = document.querySelector(".numInput");
-const allButtons = document.querySelectorAll(".button");
 
-allButtons.forEach(button => {
-    button.addEventListener("click", (e) => {
-        const value = e.target.dataset.value;
-        if (value === "="){
-           if (numInput.textContent.includes("/")){
-            const splitNum = numInput.textContent.split("/");
-            operate("/", splitNum [0], splitNum [1]);
-           } 
-        }
-        
-        if (value === "="){
-            if (numInput.textContent.includes("*")) {
-              const splitNum = numInput.textContent.split("*");
-              operate("*", splitNum [0], splitNum [1]);
+let operator = '';
+let previousValue = '';
+let currentValue = '';
+
+document.addEventListener("DOMContentLoaded", function(){
+    let clear = document.querySelector("#clear-btn");
+    let equal = document.querySelector(".equal");
+    let decimal = document.querySelector(".decimal");
+    
+    let numbers = document.querySelectorAll(".number");
+    let operators = document.querySelectorAll(".operator");
+
+    let previousScreen = document.querySelector(".previous");
+    let currentScreen = document.querySelector(".current");
+
+    numbers.forEach((number) => number.addEventListener("click", function(e){
+        handleNumber(e.target.textContent)
+        currentScreen.textContent = currentValue;
+    }))
+
+    operators.forEach((op) => op.addEventListener("click", function(e){
+        handleOperator(e.target.textContent)
+        previousScreen.textContent = previousValue + " " + operator;
+        currentScreen.textContent = currentValue;
+    }))
+
+    clear.addEventListener("click", function(){
+        previousValue = '';
+        currentValue = '';
+        operator = '';
+        previousScreen.textContent = currentValue;
+        currentScreen.textContent = currentValue;
+    })
+
+    equal.addEventListener("click", function(){
+        if(currentValue != '' && previousValue != ''){
+            calculate()
+            previousScreen.textContent = '';
+            if(previousValue.length <= 5){
+                currentScreen.textContent = previousValue;
+            } else{
+                currentScreen.textContent = previousValue.slice(0,5) + "...";
             }
         }
-        
-        if (value === "="){
-            if (numInput.textContent.includes("+")) {
-              const splitNum = numInput.textContent.split("+");
-              operate("+", splitNum [0], splitNum [1]);
-            }
-        }
+    })
 
-        if (value === "="){
-            if (numInput.textContent.includes("-")) {
-              const splitNum = numInput.textContent.split("-");
-              operate("-", splitNum [0], splitNum [1]);
-            } 
-        }
-
-        numInput.textContent += value
-        console.log("e", e.target.dataset.value)
-
-        if (value === "Clear"){
-            numInput.textContent = ("");
-        }
+    decimal.addEventListener("click", function(){
+        addDecimal();
     })
 })
 
-
-
-const operate = (operater, value1, value2) => {
-    const num1= Number(value1);
-    const num2= Number(value2);
-
-    if (operater === "/") {
-        numInput.textContent=(num1 / num2);
-        console.log(num1 / num2);
+function handleNumber(num){
+    if(currentValue.length <= 5){
+        currentValue += num; 
     }
-    if (operater === "*") {
-        numInput.textContent=(num1 * num2);
-        console.log(num1 * num2);
+}
+
+function handleOperator(op){
+    operator = op;
+    previousValue = currentValue;
+    currentValue = '';
+}
+
+function calculate(){
+    previousValue = Number(previousValue);
+    currentValue = Number(currentValue);
+
+    if(operator === "+"){
+        previousValue += currentValue;
+    } else if(operator === "-"){
+        previousValue -= currentValue;
+    } else if(operator === "x"){
+        previousValue *= currentValue;
+    } else{
+        previousValue /= currentValue;
     }
-    if (operater === "-") {
-        numInput.textContent=(num1 - num2);
-        console.log(num1 - num2);
+
+    previousValue = roundNumber(previousValue);
+    previousValue = previousValue.toString();
+    currentValue = previousValue.toString();
+}
+
+function roundNumber(num){
+    return Math.round(num * 1000) / 1000;
+}
+
+function addDecimal(){
+    if(!currentValue.includes(".")){
+        currentValue += '.';
     }
-    if (operater === "+") {
-        numInput.textContent=(num1 + num2);
-        console.log(num1 + num2);
-    }
-    console.log(operater,num1,num2)
-    }
-;
-/*
-//let firstNumber = parseInt(prompt("Please input the first number:"));
-//let secondNumber = parseInt(prompt("Please input the second number:"));
-
-
-
-const addition = ((firstNumber, secondNumber) => {
-    let addValues = (firstNumber + secondNumber);
-    console.log("add", addValues);
-});
-
-const subtraction = ((firstNumber, secondNumber) => {
-    let subtractValues = (firstNumber - secondNumber);
-    console.log("subtract", subtractValues);
-}); 
-
-const multiplication = ((firstNumber, secondNumber) => {
-    let multiplyValues = (firstNumber * secondNumber);
-    console.log("multiply", multiplyValues);
-});
-
-const division = ((firstNumber, secondNumber) => {
-    let divideValules = (firstNumber / secondNumber);
-    console.log("divide", divideValules);
-});
-
-addition(firstNumber, secondNumber);
-subtraction(firstNumber, secondNumber);
-multiplication(firstNumber, secondNumber);
-division(firstNumber, secondNumber);
-
-
-
-/*
-})*/
+}
